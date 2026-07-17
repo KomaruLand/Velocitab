@@ -133,18 +133,8 @@ public interface ConfigProvider {
             getPlugin().getLogger().warn("Skipping compatibility checks");
             return;
         }
-
-        // Validate Velocity platform version
-        final Metadata metadata = getMetadata();
-        final Version proxyVersion = getVelocityVersion();
-        metadata.validateApiVersion(proxyVersion);
-        metadata.validateBuild(proxyVersion);
-
-        // Validate PAPIProxyBridge hook version
-        final Optional<Version> papiProxyBridgeVersion = getPapiProxyBridgeVersion();
-        if (papiProxyBridgeVersion.isPresent()) {
-            metadata.validatePapiProxyBridgeVersion(papiProxyBridgeVersion.get());
-        }
+        getPlugin().getLogger().warn("Compatibility version checks are disabled; continuing startup on Velocity {}",
+                getVelocityVersion().toStringWithoutMetadata());
     }
 
     @NotNull

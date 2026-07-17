@@ -420,12 +420,20 @@ public class ScoreboardManager {
             plugin.getTabList().removeOfflinePlayer(player);
             return;
         }
-        if (player.getProtocolVersion().noLessThan(ProtocolVersion.MINECRAFT_1_21_2) && isNameTagEmpty) {
+        if (isNoLessThan(player.getProtocolVersion(), "MINECRAFT_1_21_2") && isNameTagEmpty) {
             return;
         }
 
         final ConnectedPlayer connectedPlayer = (ConnectedPlayer) player;
         connectedPlayer.getConnection().write(packet);
+    }
+
+    private boolean isNoLessThan(@NotNull ProtocolVersion protocolVersion, @NotNull String targetVersionName) {
+        try {
+            return protocolVersion.noLessThan(ProtocolVersion.valueOf(targetVersionName));
+        } catch (Throwable e) {
+            return false;
+        }
     }
 
     public void registerPacket() {
