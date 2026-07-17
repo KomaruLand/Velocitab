@@ -44,16 +44,6 @@ import java.util.*;
 public final class VelocitabCommand {
 
     // System locales
-    private final String systemDumpConfirm = """
-            <color:#00fb9a><bold>Velocitab</bold></color> <color:#00fb9a>| Prepare a system dump? This will include:</color>
-            <gray>• Your latest server logs and Velocitab config files</gray>
-            <gray>• Current plugin system status information</gray>
-            <gray>• Information about your Java & Minecraft server environment</gray>
-            <gray>• A list of other currently installed plugins</gray>
-            <click:run_command:/velocitab dump confirm><hover:show_text:'<gray>Click to prepare dump'><color:#00fb9a>To confirm, use: <italic>/velocitab dump confirm</italic></color></click>
-            """;
-    private final String systemDumpStarted = "<color:#00fb9a><bold>Velocitab</bold></color> <color:#00fb9a>| Preparing system status dump, please wait…</color>";
-    private final String systemDumpReady = "<click:open_url:%url%><color:#00fb9a><bold>Velocitab</bold></color> <color:#00fb9a>| System status dump prepared! Click to view:</color>\n<underlined><color:gray>%url%</color></underlined></click>";
     private final String systemUpToDate = "<color:#00fb9a><bold>Velocitab</bold></color> <color:#00fb9a>| You are running the latest version of Velocitab (v%ver%).</color>";
     private final String systemUpdateAvailable = "<color:#00fb9a><bold>Velocitab</bold></color> <color:#00fb9a>| A new version of HuskClaims is available: v%new% (running: v%ver%).</color>";
     private final String systemReloaded = "<color:#00fb9a><bold>Velocitab</bold></color> <color:#00fb9a>| Reloaded config and tab group files.</color>";
@@ -302,22 +292,6 @@ public final class VelocitabCommand {
                                             return Command.SINGLE_SUCCESS;
                                         })
                                 )
-                        ))
-                .then(LiteralArgumentBuilder.<CommandSource>literal("dump")
-                        .requires(src -> hasPermission(src, "dump"))
-                        .executes(ctx -> {
-                            ctx.getSource().sendRichMessage(systemDumpConfirm.trim());
-                            return Command.SINGLE_SUCCESS;
-                        })
-                        .then(LiteralArgumentBuilder.<CommandSource>literal("confirm")
-                                .executes(ctx -> {
-                                    ctx.getSource().sendRichMessage(systemDumpStarted);
-                                    plugin.getServer().getScheduler().buildTask(plugin, () -> {
-                                        final String url = plugin.createDump(ctx.getSource());
-                                        ctx.getSource().sendRichMessage(systemDumpReady.replace("%url%", url));
-                                    }).schedule();
-                                    return Command.SINGLE_SUCCESS;
-                                })
                         ))
                 .then(LiteralArgumentBuilder.<CommandSource>literal("update")
                         .requires(src -> hasPermission(src, "update"))

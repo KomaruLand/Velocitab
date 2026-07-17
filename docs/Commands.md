@@ -11,7 +11,7 @@ This page contains the usage table and associated permissions for the `/velocita
     <tbody>
         <!-- /velocitab command -->
         <tr>
-            <td rowspan="7"><code>/velocitab</code></td>
+            <td rowspan="6"><code>/velocitab</code></td>
             <td><code>/velocitab</code></td>
             <td>View & manage plugin system information</td>
             <td><code>velocitab.command</code></td>
@@ -35,11 +35,6 @@ This page contains the usage table and associated permissions for the `/velocita
             <td><code>/velocitab name [value]</code></td>
             <td>Change or reset your TAB display name</td>
             <td><code>velocitab.command.name</code></td>
-        </tr>
-        <tr>
-            <td><code>/velocitab dump</code></td>
-            <td>Generate a debug dump of the plugin state</td>
-            <td><code>velocitab.command.dump</code></td>
         </tr>
         <tr>
             <td><code>/velocitab debug tablist &lt;player&gt;</code></td>
