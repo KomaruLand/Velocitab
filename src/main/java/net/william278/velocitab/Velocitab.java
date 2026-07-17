@@ -33,7 +33,6 @@ import lombok.Getter;
 import lombok.Setter;
 import net.william278.desertwell.util.UpdateChecker;
 import net.william278.desertwell.util.Version;
-import net.william278.toilet.Toilet;
 import net.william278.velocitab.api.EventDispatcher;
 import net.william278.velocitab.api.PluginMessageAPI;
 import net.william278.velocitab.api.VelocitabAPI;
@@ -61,7 +60,7 @@ import java.util.List;
 
 @Plugin(id = "velocitab")
 @Getter
-public class Velocitab implements ConfigProvider, ScoreboardProvider, LoggerProvider, HookProvider, DumpProvider {
+public class Velocitab implements ConfigProvider, ScoreboardProvider, LoggerProvider, HookProvider {
 
     @Setter
     private Settings settings;
@@ -86,8 +85,6 @@ public class Velocitab implements ConfigProvider, ScoreboardProvider, LoggerProv
     private PluginMessageAPI pluginMessageAPI;
     private PlaceholderManager placeholderManager;
     private EventDispatcher eventDispatcher;
-    @Setter
-    private Toilet toilet;
 
     @Inject
     public Velocitab(@NotNull ProxyServer server, @NotNull Logger logger, @DataDirectory Path configDirectory) {
@@ -108,7 +105,6 @@ public class Velocitab implements ConfigProvider, ScoreboardProvider, LoggerProv
         checkForUpdates();
         prepareAPI();
         prepareChannelManager();
-        initializeToilet();
         DebugSystem.initializeTask(this);
         logger.info("Successfully enabled Velocitab");
     }
