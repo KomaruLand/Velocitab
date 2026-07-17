@@ -118,9 +118,6 @@ shadowJar {
     destinationDirectory.set(file("$rootDir/target"))
     archiveClassifier.set('')
 
-    minimize() {
-        exclude dependency('commons-logging:commons-logging')
-    }
 }
 jar.dependsOn shadowJar
 clean.delete "$rootDir/target"
