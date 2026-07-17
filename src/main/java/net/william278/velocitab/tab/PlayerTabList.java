@@ -28,9 +28,6 @@ import com.velocitypowered.api.proxy.player.TabListEntry;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 import com.velocitypowered.api.scheduler.ScheduledTask;
-import com.velocitypowered.api.util.ServerLink;
-import com.velocitypowered.proxy.tablist.KeyedVelocityTabList;
-import com.velocitypowered.proxy.tablist.VelocityTabList;
 import it.unimi.dsi.fastutil.Pair;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -81,21 +78,18 @@ public class PlayerTabList {
 
     // VelocityTabListLegacy is not supported
     private void registerFields() {
-        final Class<KeyedVelocityTabList> keyedVelocityTabListClass = KeyedVelocityTabList.class;
-        final Class<VelocityTabList> velocityTabListClass = VelocityTabList.class;
+        registerEntriesField("com.velocitypowered.proxy.tablist.KeyedVelocityTabList", "KeyedVelocityTabList");
+        registerEntriesField("com.velocitypowered.proxy.tablist.VelocityTabList", "VelocityTabList");
+    }
+
+    private void registerEntriesField(@NotNull String className, @NotNull String simpleName) {
         try {
-            final Field entriesField = keyedVelocityTabListClass.getDeclaredField("entries");
+            final Class<?> tabListClass = Class.forName(className);
+            final Field entriesField = tabListClass.getDeclaredField("entries");
             entriesField.setAccessible(true);
-            this.entriesFields.put(keyedVelocityTabListClass, entriesField);
-        } catch (NoSuchFieldException e) {
-            plugin.log(Level.ERROR, "Failed to register KeyedVelocityTabList field", e);
-        }
-        try {
-            final Field entriesField = velocityTabListClass.getDeclaredField("entries");
-            entriesField.setAccessible(true);
-            this.entriesFields.put(velocityTabListClass, entriesField);
-        } catch (NoSuchFieldException e) {
-            plugin.log(Level.ERROR, "Failed to register VelocityTabList field", e);
+            this.entriesFields.put(tabListClass, entriesField);
+        } catch (Throwable e) {
+            plugin.log(Level.WARN, "Failed to register " + simpleName + " field", e);
         }
     }
 
@@ -470,7 +464,7 @@ public class PlayerTabList {
     }
 
     private boolean hasListOrder(TabPlayer tabPlayer) {
-        return tabPlayer.getPlayer().getProtocolVersion().noLessThan(ProtocolVersion.MINECRAFT_1_21_2);
+        return isNoLessThan(tabPlayer.getPlayer().getProtocolVersion(), "MINECRAFT_1_21_2");
     }
 
     private void updateSorting(TabPlayer tabPlayer, UUID uuid, int position) {
@@ -486,13 +480,27 @@ public class PlayerTabList {
     }
 
     public void sendPlayerServerLinks(@NotNull TabPlayer player) {
-        if (player.getPlayer().getProtocolVersion().lessThan(ProtocolVersion.MINECRAFT_1_21)) {
+        if (!isNoLessThan(player.getPlayer().getProtocolVersion(), "MINECRAFT_1_21")) {
             return;
         }
 
-        final List<ServerUrl> urls = plugin.getSettings().getUrlsForGroup(player.getGroup());
-        final List<ServerLink> serverLinks = ServerUrl.resolve(plugin, player, urls);
-        player.getPlayer().setServerLinks(serverLinks);
+        try {
+            final Class<?> serverLinkClass = Class.forName("com.velocitypowered.api.util.ServerLink");
+            final List<?> serverLinks = ServerUrl.resolve(plugin, player, plugin.getSettings().getUrlsForGroup(player.getGroup()));
+            if (serverLinks.stream().allMatch(serverLinkClass::isInstance)) {
+                player.getPlayer().getClass().getMethod("setServerLinks", List.class).invoke(player.getPlayer(), serverLinks);
+            }
+        } catch (Throwable e) {
+            plugin.log(Level.WARN, "Server links are not supported on this Velocity runtime, skipping update");
+        }
+    }
+
+    private boolean isNoLessThan(@NotNull ProtocolVersion protocolVersion, @NotNull String targetVersionName) {
+        try {
+            return protocolVersion.noLessThan(ProtocolVersion.valueOf(targetVersionName));
+        } catch (Throwable e) {
+            return false;
+        }
     }
 
     public void updateGroupNames(@NotNull Group group) {

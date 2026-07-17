@@ -61,20 +61,19 @@ public class ScoreboardManager {
 
     public ScoreboardManager(@NotNull Velocitab velocitab, boolean teams) {
         this.plugin = velocitab;
-        this.teams = teams;
         this.createdTeams = Maps.newConcurrentMap();
         this.nametags = Maps.newConcurrentMap();
         this.versions = Maps.newHashMap();
         this.trackedTeams = Multimaps.synchronizedMultimap(Multimaps.newSetMultimap(Maps.newConcurrentMap(), Sets::newConcurrentHashSet));
         this.sortedTeams = new SortedSet(Comparator.reverseOrder());
-        this.registerVersions();
+        this.teams = teams && this.registerVersions();
     }
 
     public boolean handleTeams() {
         return teams;
     }
 
-    private void registerVersions() {
+    private boolean registerVersions() {
         try {
             final Protocol770Adapter protocol770Adapter = new Protocol770Adapter(plugin);
             protocol770Adapter.getProtocolVersions().forEach(version -> versions.put(version, protocol770Adapter));
@@ -86,9 +85,11 @@ public class ScoreboardManager {
             protocol404Adapter.getProtocolVersions().forEach(version -> versions.put(version, protocol404Adapter));
             final Protocol48Adapter protocol48Adapter = new Protocol48Adapter(plugin);
             protocol48Adapter.getProtocolVersions().forEach(version -> versions.put(version, protocol48Adapter));
+            return true;
         } catch (NoSuchFieldError e) {
-            throw new IllegalStateException("Failed to register Scoreboard Teams packets." +
-                    " Velocitab probably does not (yet) support your Proxy version.", e);
+            plugin.log(Level.WARN, "Failed to register Scoreboard Teams packets."
+                    + " Velocitab probably does not (yet) support your Proxy version; disabling scoreboard packet teams.", e);
+            return false;
         }
     }
 
@@ -419,12 +420,20 @@ public class ScoreboardManager {
             plugin.getTabList().removeOfflinePlayer(player);
             return;
         }
-        if (player.getProtocolVersion().noLessThan(ProtocolVersion.MINECRAFT_1_21_2) && isNameTagEmpty) {
+        if (isNoLessThan(player.getProtocolVersion(), "MINECRAFT_1_21_2") && isNameTagEmpty) {
             return;
         }
 
         final ConnectedPlayer connectedPlayer = (ConnectedPlayer) player;
         connectedPlayer.getConnection().write(packet);
+    }
+
+    private boolean isNoLessThan(@NotNull ProtocolVersion protocolVersion, @NotNull String targetVersionName) {
+        try {
+            return protocolVersion.noLessThan(ProtocolVersion.valueOf(targetVersionName));
+        } catch (Throwable e) {
+            return false;
+        }
     }
 
     public void registerPacket() {

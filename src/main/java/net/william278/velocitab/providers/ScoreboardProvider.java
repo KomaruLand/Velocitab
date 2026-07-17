@@ -101,10 +101,16 @@ public interface ScoreboardProvider {
      * Disables the ScoreboardManager and closes the tab list for the player.
      */
     default void disableScoreboardManager() {
-        getScoreboardManager().close();
-        getScoreboardManager().unregisterPacket();
+        final ScoreboardManager scoreboardManager = getScoreboardManager();
+        if (scoreboardManager != null) {
+            scoreboardManager.close();
+            scoreboardManager.unregisterPacket();
+        }
 
-        getTabList().close();
+        final PlayerTabList tabList = getTabList();
+        if (tabList != null) {
+            tabList.close();
+        }
     }
 
 }
