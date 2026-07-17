@@ -61,7 +61,7 @@ import java.util.List;
 
 @Plugin(id = "velocitab")
 @Getter
-public class Velocitab implements ConfigProvider, ScoreboardProvider, LoggerProvider, HookProvider, MetricProvider, DumpProvider {
+public class Velocitab implements ConfigProvider, ScoreboardProvider, LoggerProvider, HookProvider, DumpProvider {
 
     @Setter
     private Settings settings;
