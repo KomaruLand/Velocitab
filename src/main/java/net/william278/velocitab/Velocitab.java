@@ -52,7 +52,6 @@ import net.william278.velocitab.sorting.SortingManager;
 import net.william278.velocitab.tab.PlayerTabList;
 import net.william278.velocitab.util.DebugSystem;
 import net.william278.velocitab.vanish.VanishManager;
-import org.bstats.velocity.Metrics;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.event.Level;
