@@ -73,8 +73,6 @@ public class Velocitab implements ConfigProvider, ScoreboardProvider, LoggerProv
     private final Path configDirectory;
     @Inject
     private PluginContainer pluginContainer;
-    @Inject
-    private Metrics.Factory metricsFactory;
     @Setter
     private PlayerTabList tabList;
     @Setter
@@ -107,7 +105,6 @@ public class Velocitab implements ConfigProvider, ScoreboardProvider, LoggerProv
         prepareVanishManager();
         prepareScoreboard();
         registerCommands();
-        registerMetrics();
         checkForUpdates();
         prepareAPI();
         prepareChannelManager();
